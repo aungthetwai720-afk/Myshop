@@ -1,94 +1,84 @@
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby-JdSwP-V3jlo0pNvB0ENZBcdu4ecb_1O3D0nv77qOhs9kUVTuIwu6oH9i6zeuN0_1Zw/exec";
-let inventory = [];
+const URL = "ဒီနေရာမှာ_သင့်ရဲ့_Web_App_URL_ကိုထည့်ပါ"; 
+
+let inventory = []; 
 let cart = {};
 
-// Google Sheet မှ ဒေတာယူခြင်း
+// Google Sheet မှ ဒေတာဆွဲယူခြင်း
 async function loadData() {
     try {
-        const response = await fetch(WEB_APP_URL);
-        inventory = await response.json();
-        renderItems(inventory);
-    } catch (error) {
-        console.error("Error:", error);
-        document.getElementById('itemList').innerHTML = "ဒေတာယူ၍ မရနိုင်ပါ။";
+        const res = await fetch(URL);
+        inventory = await res.json();
+        render();
+    } catch (e) {
+        alert("ဒေတာဆွဲမရပါ၊ URL ကိုပြန်စစ်ပါ");
     }
 }
 
-// ပစ္စည်းများကို မျက်နှာပြင်ပေါ်ပြခြင်း
-function renderItems(items) {
-    const listDiv = document.getElementById('itemList');
-    listDiv.innerHTML = items.map(item => `
-        <div class="bg-white p-4 rounded-lg shadow-sm flex justify-between items-center border-l-4 border-blue-500 item-card">
-            <div class="flex-1">
-                <div class="font-bold text-gray-800">${item[1]}</div>
-                <div class="text-xs text-gray-500">${item[2]} | လက်ကျန်: ${item[4]}</div>
-                <div class="text-blue-600 font-bold">${item[3].toLocaleString()} MMK</div>
+// ပစ္စည်းစာရင်း ပြသခြင်း
+function render(data = inventory) {
+    document.getElementById('itemList').innerHTML = data.map(i => `
+        <div class="bg-white p-3 rounded-lg flex justify-between items-center shadow-sm border-l-4 border-blue-500">
+            <div>
+                <div class="font-bold">${i[1]}</div>
+                <div class="text-xs text-gray-500">${i[2]} | ${i[3]} K</div>
             </div>
-            <div class="flex items-center space-x-3">
-                <button onclick="updateCart('${item[0]}', -1, ${item[3]})" class="bg-gray-200 w-8 h-8 rounded-full font-bold">-</button>
-                <span id="qty-${item[0]}" class="font-bold w-6 text-center">0</span>
-                <button onclick="updateCart('${item[0]}', 1, ${item[3]})" class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full font-bold">+</button>
+            <div class="flex items-center gap-2">
+                <button onclick="update('${i[0]}', -1, ${i[3]}, '${i[1]}')" class="bg-gray-200 px-2 rounded">-</button>
+                <span id="q-${i[0]}">${cart[i[0]] ? cart[i[0]].qty : 0}</span>
+                <button onclick="update('${i[0]}', 1, ${i[3]}, '${i[1]}')" class="bg-blue-100 text-blue-600 px-2 rounded font-bold">+</button>
             </div>
         </div>
     `).join('');
 }
 
-// ခြင်းထဲသို့ ပစ္စည်းထည့်ခြင်း/နှုတ်ခြင်း
-function updateCart(id, change, price) {
-    if (!cart[id]) cart[id] = { qty: 0, price: price };
+// ပစ္စည်းအရေအတွက် တိုး/လျော့ လုပ်ခြင်း
+function update(id, ch, pr, nm) {
+    if (!cart[id]) cart[id] = { qty: 0, price: pr, name: nm };
+    cart[id].qty = Math.max(0, cart[id].qty + ch);
+    document.getElementById(`q-${id}`).innerText = cart[id].qty;
     
-    cart[id].qty += change;
-    if (cart[id].qty < 0) cart[id].qty = 0;
-
-    document.getElementById(`qty-${id}`).innerText = cart[id].qty;
-    calculateTotal();
+    let total = 0; 
+    Object.values(cart).forEach(i => total += (i.qty * i.price));
+    document.getElementById('totalDisplay').innerText = total.toLocaleString() + " MMK";
 }
 
-// စုစုပေါင်း ကျသင့်ငွေတွက်ချက်ခြင်း
-function calculateTotal() {
-    let total = 0;
-    for (let id in cart) {
-        total += cart[id].qty * cart[id].price;
-    }
-    document.getElementById('totalAmount').innerText = total.toLocaleString() + " MMK";
-}
-
-// ရှာဖွေရေးလုပ်ဆောင်ချက်
-document.getElementById('searchInput').addEventListener('keyup', (e) => {
-    let val = e.target.value.toLowerCase();
-    let filtered = inventory.filter(item => item[1].toLowerCase().includes(val));
-    renderItems(filtered);
-    // ပြန်ပေါ်လာသော ပစ္စည်းများအတွက် လက်ရှိ ရွေးထားသော အရေအတွက်များကို ပြန်ပြရန်
-    for (let id in cart) {
-        let el = document.getElementById(`qty-${id}`);
-        if (el) el.innerText = cart[id].qty;
-    }
-});
-
-// ရောင်းချမှု အတည်ပြုခြင်း
+// အရောင်းစာရင်းကို Google Sheet သို့ ပို့ခြင်း
 async function checkout() {
-    const finalCart = Object.keys(cart)
-        .filter(id => cart[id].qty > 0)
-        .map(id => ({ id: id, qty: cart[id].qty }));
+    const btn = document.getElementById('btn');
+    const seller = document.getElementById('seller').value;
+    const buyer = document.getElementById('buyer').value;
+    const selected = Object.keys(cart).filter(id => cart[id].qty > 0).map(id => ({
+        id: id, 
+        qty: cart[id].qty, 
+        name: cart[id].name,
+        price: cart[id].price
+    }));
 
-    if (finalCart.length === 0) return alert("ပစ္စည်း အနည်းဆုံး တစ်မျိုး ရွေးပေးပါ");
-
-    const btn = document.getElementById('checkoutBtn');
-    btn.disabled = true;
+    if (!selected.length) return alert("ပစ္စည်းရွေးပါ");
+    
+    btn.disabled = true; 
     btn.innerText = "သိမ်းဆည်းနေပါသည်...";
+    
+    const rawTotal = Object.values(cart).reduce((t, i) => t + (i.qty * i.price), 0);
 
-    try {
-        await fetch(WEB_APP_URL, {
-            method: 'POST',
-            body: JSON.stringify({ cart: finalCart })
-        });
-        alert("ရောင်းချမှု အောင်မြင်ပါသည်။");
-        location.reload(); 
-    } catch (error) {
-        alert("အမှားအယွင်း ရှိနေပါသည်။");
-        btn.disabled = false;
-        btn.innerText = "ရောင်းမည် (Checkout)";
-    }
+    await fetch(URL, {
+        method: 'POST',
+        body: JSON.stringify({
+            sellerName: seller || "မသိရ",
+            buyerName: buyer || "မသိရ",
+            totalAmount: rawTotal,
+            cart: selected
+        })
+    });
+
+    alert("ရောင်းပြီးပါပြီ"); 
+    location.reload();
+}
+
+// ရှာဖွေခြင်း
+function searchItem() {
+    let val = document.getElementById('search').value.toLowerCase();
+    render(inventory.filter(i => i[1].toLowerCase().includes(val)));
 }
 
 loadData();
