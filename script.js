@@ -1,4 +1,4 @@
-const URL = "ဒီနေရာမှာ_သင့်ရဲ့_Web_App_URL_ကိုထည့်ပါ"; 
+const URL = "Https://script.google.com/macros/s/AKfycbw7jxmSiSoEktG1Wzabxx7j9W1gEhDqJImXq4TBPRhF8tePRa-y68ntk2iJNgwwxGRPDQ/exec"; 
 
 let inventory = []; 
 let cart = {};
