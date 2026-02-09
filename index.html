@@ -1,35 +1,31 @@
 <!DOCTYPE html>
-<html lang="my">
+<html>
 <head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ဆေးဆိုင် အရောင်းစနစ်</title>
+    <title>Pharmacy POS</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-100 pb-32">
+<body class="bg-gray-100 pb-40">
     <div class="p-4">
-        <h1 class="text-2xl font-bold text-center mb-6 text-blue-600">ဆေးဆိုင် အရောင်းစနစ်</h1>
+        <h1 class="text-xl font-bold text-center mb-4 text-blue-700">အရောင်းစနစ်</h1>
         
-        <input type="text" id="searchInput" placeholder="ပစ္စည်းအမည်ဖြင့် ရှာရန်..." 
-               class="w-full p-3 mb-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-
-        <div id="itemList" class="space-y-3">
-            <p class="text-center text-gray-500">ဒေတာများကို ဆွဲယူနေပါသည်...</p>
+        <div class="grid grid-cols-2 gap-2 mb-4">
+            <input type="text" id="seller" placeholder="ရောင်းသူအမည်" class="p-2 border rounded shadow-sm">
+            <input type="text" id="buyer" placeholder="ဝယ်သူအမည်" class="p-2 border rounded shadow-sm">
         </div>
+
+        <input type="text" id="search" onkeyup="searchItem()" placeholder="ပစ္စည်းရှာရန်..." class="w-full p-3 border rounded-lg mb-4 shadow-sm">
+
+        <div id="itemList" class="space-y-2"></div>
     </div>
 
-    <div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 shadow-lg">
-        <div class="flex justify-between items-center mb-3">
-            <span class="text-lg font-bold">စုစုပေါင်း ကျသင့်ငွေ:</span>
-            <span id="totalAmount" class="text-xl font-bold text-red-600">0 MMK</span>
+    <div class="fixed bottom-0 left-0 right-0 bg-white p-4 border-t shadow-2xl">
+        <div class="flex justify-between font-bold mb-2">
+            <span>စုစုပေါင်း:</span>
+            <span id="totalDisplay" class="text-red-600 text-lg">0 MMK</span>
         </div>
-        <button onclick="checkout()" id="checkoutBtn" 
-                class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg active:scale-95 transition-transform">
-            ရောင်းမည် (Checkout)
-        </button>
+        <button onclick="checkout()" id="btn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold active:bg-blue-800">ရောင်းမည်</button>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
