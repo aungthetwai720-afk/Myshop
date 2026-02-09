@@ -1,4 +1,4 @@
-const URL = "Https://script.google.com/macros/s/AKfycbw7jxmSiSoEktG1Wzabxx7j9W1gEhDqJImXq4TBPRhF8tePRa-y68ntk2iJNgwwxGRPDQ/exec"; 
+const URL = "https://script.google.com/macros/s/AKfycbxW1qefnDSUYrm2AxBg4pH56X2n1Mv4abzOoAkRBo3HF7NA51Y4yyTFeP1-S_dkUhxpdQ/exec"; 
 
 let inventory = []; 
 let cart = {};
