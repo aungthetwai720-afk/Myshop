@@ -1,0 +1,18 @@
+body {
+    font-family: sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.item-card {
+    transition: all 0.2s ease;
+}
+
+.item-card:active {
+    background-color: #f0f7ff;
+}
+
+#checkoutBtn:disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+}
+
